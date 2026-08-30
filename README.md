@@ -1,109 +1,138 @@
 # Structure-Aware RAG Ingestion Pipeline
 
-Pipeline ingestion PDF yang **sadar struktur dokumen** (structure-aware): alih-alih memotong teks per N karakter secara membabi buta, pipeline ini membaca layout dokumen (judul, subjudul, tabel, gambar) lalu membuat chunk yang mempertahankan hierarki heading, nomor halaman, dan tipe elemen. Hasil chunk kemudian di-embed dan disimpan ke **ChromaDB** agar bisa dicari secara semantik.
+Kebanyakan pipeline RAG memotong dokumen per N karakter tanpa peduli isinya —
+kalimat bisa terpotong di tengah, tabel bisa hancur jadi teks acak, dan
+konteks section-nya hilang. Pipeline ini coba beda: baca dulu layout PDF-nya
+(judul, subjudul, tabel, gambar), baru bikin chunk yang tetap tahu dia ada di
+section mana, di halaman berapa, dan berbentuk apa.
 
-Dibangun dengan `uv` (package manager Python), [`unstructured`](https://github.com/Unstructured-IO/unstructured) untuk parsing PDF, dan [`chromadb`](https://www.trychroma.com/) sebagai vector store.
+Prosesnya dua tahap. PDF diparsing pakai
+[`unstructured`](https://github.com/Unstructured-IO/unstructured), hasilnya
+dikelompokkan jadi chunk sadar-struktur, lalu di-embed dan disimpan ke
+[`ChromaDB`](https://www.trychroma.com/) supaya bisa dicari secara semantik.
+Package manager-nya `uv`.
 
----
-
-## Cara Kerja Singkat
+## Alurnya
 
 ```
 data/raw/*.pdf
-      │  (1) parse layout dengan hi_res + OCR
+      │  parse layout (hi_res + OCR)
       ▼
-partition_document()  →  daftar Element (Title, NarrativeText, Table, Image, ...)
-      │  (2) kelompokkan jadi chunk sadar-struktur
+partition_document()  →  Title, NarrativeText, Table, Image, ...
+      │  kelompokkan jadi chunk, sambil lacak heading & halaman
       ▼
-chunk_elements()  →  daftar Chunk (text + heading_path + page_number + element_types)
-      │  (3) simpan sebagai JSON
+chunk_elements()  →  Chunk (text, heading_path, page_number, element_types)
+      │  tulis ke JSON
       ▼
 data/processed/*.json
-      │  (4) embed teks & simpan ke Chroma
+      │  embed & simpan
       ▼
-data/chroma/  (vector database, bisa langsung di-query)
+data/chroma/  (vector db, siap di-query)
 ```
-
----
 
 ## Struktur Folder
 
 ```
 Structure Aware RAG/
 ├── data/
-│   ├── raw/          # PDF sumber yang belum diproses — taruh file baru di sini
-│   ├── processed/    # Output chunking dalam format JSON (satu file per PDF)
-│   └── chroma/        # Vector database ChromaDB (dibuat otomatis, tidak di-commit ke git)
-├── src/
-│   └── structure_aware_rag/
-│       ├── __init__.py      # Entry point `main()` — menjalankan ingest lalu store
-│       ├── env_setup.py     # Auto-fix PATH untuk Tesseract OCR & Poppler di Windows
-│       ├── parse.py         # Parsing PDF → elemen terstruktur (partition_pdf)
-│       ├── chunk.py         # Elemen → chunk sadar-struktur (heading_path, dst.)
-│       ├── schema.py        # Model data Pydantic: Chunk & ChunkMetadata
-│       ├── ingest.py        # Orkestrasi: baca data/raw/*.pdf → tulis data/processed/*.json
-│       └── store.py         # Baca data/processed/*.json → embed & simpan ke ChromaDB
-├── ISSUES.md          # Catatan masalah yang diketahui & status perbaikannya
-├── pyproject.toml     # Definisi project & dependency (dikelola oleh uv)
-└── uv.lock            # Lockfile dependency (jangan diedit manual)
+│   ├── raw/          # PDF sumber — taruh file baru di sini
+│   ├── processed/    # Output chunking, satu JSON per PDF
+│   └── chroma/       # Vector db, dibuat otomatis, tidak ikut di-commit
+├── src/structure_aware_rag/
+│   ├── __init__.py   # main() — jalanin ingest lalu store
+│   ├── env_setup.py  # nambal PATH kalau Tesseract/Poppler belum kedetect
+│   ├── parse.py      # PDF → elemen terstruktur
+│   ├── chunk.py       # elemen → chunk sadar-struktur, ini intinya
+│   ├── schema.py      # model Pydantic buat Chunk & metadata-nya
+│   ├── ingest.py      # baca data/raw/*.pdf, tulis data/processed/*.json
+│   └── store.py       # baca data/processed/*.json, embed, simpan ke Chroma
+├── ISSUES.md          # masalah yang udah ketemu, mana yang udah/belum dibenerin
+├── pyproject.toml
+└── uv.lock
 ```
 
-### Fungsi Tiap File
+Yang paling penting dibaca duluan kalau mau ngerti pipeline-nya ya
+`chunk.py` — di situ semua logika "structure-aware"-nya kejadian.
 
-| File | Fungsi |
-|---|---|
-| `src/structure_aware_rag/env_setup.py` | Windows tidak selalu punya Tesseract OCR / Poppler di `PATH` setelah instal via winget. Fungsi `ensure_ocr_tools_on_path()` mendeteksi ini dan menambahkan path instalasi yang diketahui ke `os.environ["PATH"]` secara otomatis sebelum `unstructured` diimpor. |
-| `src/structure_aware_rag/parse.py` | Berisi `partition_document(path)` — memanggil `partition_pdf` dari `unstructured` dengan strategi `hi_res` (model deteksi layout + OCR) dan `infer_table_structure=True` supaya tabel terdeteksi sebagai tabel, bukan teks acak. |
-| `src/structure_aware_rag/chunk.py` | Otak dari "structure-aware chunking". Berjalan lewat semua elemen hasil parsing dan: <br>• melacak hierarki heading (`Title` + `category_depth`) menjadi `heading_path`, misal `["2 CAUSAL MODELS", "2.1 Contoh"]` <br>• membuang elemen boilerplate (`Header`/`Footer` — running header/footer halaman) <br>• memisahkan konten gambar (`Image`/`FigureCaption`) dari paragraf naratif ke chunk masing-masing <br>• menjaga `Table` selalu jadi chunk tersendiri (disimpan sebagai HTML) <br>• menggabungkan paragraf berurutan hingga batas `MAX_CHARS` (1500 karakter) <br>• membuang chunk yang terlalu pendek (< `MIN_CHARS` = 10 karakter) |
-| `src/structure_aware_rag/schema.py` | Model Pydantic `Chunk` (chunk_id, text, metadata) dan `ChunkMetadata` (source_file, page_number, heading_path, element_types) — memastikan struktur output konsisten dan tervalidasi. |
-| `src/structure_aware_rag/ingest.py` | Orkestrator tahap parsing: `ingest_all()` mencari semua `*.pdf` di `data/raw/`, memanggil `parse.py` + `chunk.py` untuk masing-masing, lalu menulis hasilnya sebagai `data/processed/<nama-pdf>.json`. |
-| `src/structure_aware_rag/store.py` | Orkestrator tahap penyimpanan vektor: `load_chunks()` membaca semua `data/processed/*.json`, `build_collection()` meng-embed teks tiap chunk (model default ChromaDB, `all-MiniLM-L6-v2`, otomatis diunduh) dan menyimpannya ke collection Chroma bernama `documents` di `data/chroma/`. Metadata list (`heading_path`, `element_types`) diratakan jadi string karena Chroma hanya menerima nilai scalar di metadata. |
-| `src/structure_aware_rag/__init__.py` | `main()` menjalankan seluruh pipeline end-to-end: ingest semua PDF baru → simpan ke Chroma. Dipanggil lewat `uv run structure-aware-rag`. |
+## Isi tiap file
 
----
+**`env_setup.py`** — hi_res strategy butuh Tesseract OCR dan Poppler, dan di
+Windows dua ini sering nggak nongol di `PATH` walau udah keinstall lewat
+winget (apalagi kalau terminal-nya udah kebuka duluan sebelum instalasi).
+`ensure_ocr_tools_on_path()` ngecek dulu pakai `shutil.which`, kalau nggak
+ketemu baru dia tambahin path instalasi yang dikenal ke `os.environ["PATH"]`
+sebelum `unstructured` di-import. Jadi nggak perlu restart terminal.
+
+**`parse.py`** — `partition_document(path)` motor sederhana ke
+`partition_pdf` dari `unstructured` pakai strategy `hi_res` (model deteksi
+layout, bukan cuma extract text mentah) dan `infer_table_structure=True`
+biar tabel kedeteksi sebagai tabel, bukan barisan teks yang berantakan.
+
+**`chunk.py`** — inti pipeline. Loop lewat semua elemen hasil parsing, dan:
+- lacak hierarki heading (`Title` + `category_depth`-nya) jadi `heading_path`,
+  misal `["2 CAUSAL MODELS", "2.1 Contoh"]`
+- buang elemen `Header`/`Footer` — ini running header/footer halaman, bukan
+  konten, cuma nambah noise
+- pisahin `Image`/`FigureCaption` dari paragraf narasi ke chunk sendiri,
+  biar nggak nyampur
+- `Table` selalu jadi chunk sendiri, disimpan sebagai HTML (bukan teks polos)
+- gabungin paragraf berurutan sampai batas `MAX_CHARS` (1500 karakter)
+- buang chunk yang kependekan (di bawah `MIN_CHARS` = 10 karakter, biasanya
+  sisa noise)
+
+**`schema.py`** — model Pydantic `Chunk` dan `ChunkMetadata`, biar strukturnya
+konsisten dan gampang divalidasi.
+
+**`ingest.py`** — orkestrasi tahap parsing. `ingest_all()` cari semua PDF di
+`data/raw/`, proses satu-satu lewat `parse.py` + `chunk.py`, tulis hasilnya
+ke `data/processed/<nama-pdf>.json`.
+
+**`store.py`** — orkestrasi tahap penyimpanan. `load_chunks()` baca semua
+JSON di `data/processed/`, `build_collection()` embed teksnya (model default
+Chroma, `all-MiniLM-L6-v2`, download otomatis pas pertama jalan) dan simpan
+ke collection `documents` di `data/chroma/`. Field list kayak `heading_path`
+diratain jadi string dulu karena Chroma cuma nerima metadata scalar.
+
+**`__init__.py`** — `main()` jalanin semuanya: ingest PDF baru, terus simpan
+ke Chroma. Dipanggil lewat `uv run structure-aware-rag`.
 
 ## Instalasi
 
-### 1. Prasyarat Sistem (khusus Windows)
+### 1. Dependency sistem (Windows)
 
-Strategi parsing `hi_res` butuh dua tool eksternal untuk membaca PDF yang mengandung gambar/grafik kompleks:
+`hi_res` butuh dua tool eksternal buat baca PDF yang ada gambar/grafik:
 
 ```powershell
 winget install --id UB-Mannheim.TesseractOCR -e
 winget install --id oschwartz10612.Poppler -e
 ```
 
-> Pipeline sudah otomatis mendeteksi & menambahkan tool ini ke `PATH` saat dijalankan (lihat `env_setup.py`), jadi biasanya **tidak perlu restart terminal**.
+Nggak perlu restart terminal — `env_setup.py` udah nge-handle itu otomatis.
 
-### 2. Install Dependency Python
+### 2. Dependency Python
 
 ```bash
 uv sync
 ```
 
-Ini akan membuat virtual environment di `.venv/` dan menginstal semua dependency dari `pyproject.toml` (`unstructured[pdf]`, `pydantic`, `chromadb`).
+Bikin `.venv/` dan install semua dari `pyproject.toml`.
 
----
+## Cara Pakai
 
-## Cara Menjalankan
-
-### Jalankan pipeline lengkap (ingest + simpan ke Chroma)
+Jalanin semuanya sekaligus:
 
 ```bash
 uv run structure-aware-rag
 ```
 
-### Atau jalankan tiap tahap secara terpisah
+Atau per tahap, kalau lagi mau ngecek satu bagian aja:
 
 ```bash
-# 1. Taruh PDF baru di data/raw/, lalu parse + chunk
-uv run python -m structure_aware_rag.ingest
-
-# 2. Embed hasil chunk dan simpan ke ChromaDB
-uv run python -m structure_aware_rag.store
+uv run python -m structure_aware_rag.ingest   # parse + chunk
+uv run python -m structure_aware_rag.store    # embed + simpan ke Chroma
 ```
 
-### Query cepat ke vector store
+Nge-query langsung ke vector store:
 
 ```python
 import chromadb
@@ -116,11 +145,9 @@ for teks, meta in zip(hasil["documents"][0], hasil["metadatas"][0]):
     print(meta["heading_path"], "→", teks[:100])
 ```
 
----
+## Contoh output
 
-## Contoh Output Chunk
-
-Satu chunk di `data/processed/*.json` terlihat seperti ini:
+Satu chunk di `data/processed/*.json`:
 
 ```json
 {
@@ -135,10 +162,11 @@ Satu chunk di `data/processed/*.json` terlihat seperti ini:
 }
 ```
 
-`heading_path` inilah yang membuat pipeline ini "structure-aware" — retriever bisa tahu chunk ini berasal dari section apa, bukan sekadar potongan teks tanpa konteks.
-
----
+`heading_path` ini yang bikin pipeline-nya kebilang "structure-aware" —
+retriever jadi tahu chunk ini dari section mana, bukan cuma potongan teks
+lepas tanpa konteks.
 
 ## Known Issues
 
-Lihat [`ISSUES.md`](./ISSUES.md) untuk daftar masalah yang diketahui (OCR minor artifacts, portabilitas path Tesseract/Poppler di mesin lain, dll.) beserta status perbaikannya.
+Cek [`ISSUES.md`](./ISSUES.md) — ada catatan soal artefak minor dari OCR dan
+portabilitas path Tesseract/Poppler di mesin lain.
