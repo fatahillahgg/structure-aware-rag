@@ -1,18 +1,6 @@
 [
   {
-    "chunk_id": "9e04277e-b969-43d3-ba58-41b406ea3033",
-    "text": "2022 IEEE/ACM Ist International Conference on AI Engineering — Software Engineering for AI (CAIN)",
-    "metadata": {
-      "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
-      "page_number": 1,
-      "heading_path": [],
-      "element_types": [
-        "Header"
-      ]
-    }
-  },
-  {
-    "chunk_id": "7e235cad-179a-495a-9741-0d20bce5d018",
+    "chunk_id": "39de2315-cdca-5c00-825a-2c27348fd4ee",
     "text": "Hans-Martin Heyn*\n\nEric Knauss\"\n\nhans-martin.heyn@gu.se eric.knauss@cse.gu.se Department of Computer Science and Engineering Chalmers | University of Gothenburg, Sweden",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
@@ -27,7 +15,7 @@
     }
   },
   {
-    "chunk_id": "a97af73a-f5d2-451e-a19b-fabb48449fc5",
+    "chunk_id": "fb716880-89da-56e3-bc7d-d578d0cbe684",
     "text": "Artificial Intelligence (AI), and especially machine learning can be used to find statistical patterns in datasets with thousands of vari- ables with ease. But an understanding of causality is difficult to learn for a machine. For humans however, realising causal relations is of- ten not a difficult process, as we can refer to experience or scientific knowledge. Here we propose the use of structural causal models, represented through direct acyclic graphs, to design, determine, and communicate causal relations hidden beyond the statistical models of an AI. The idea is to make human insight in causal relations explicit and use this knowledge during AI system development. In a joint-industry project we discovered that structural causal models can serve as living boundary objects that facilitate coordination of domain experts, data scientists, systems engineers, and AI experts in AI system development.\n\nrepresenting the problem we want to solve with our AI system. Judea Pearl describes it as:\n\n\"To achieve human-level intelligence, learning machines need the guid- ance of a blueprint of reality, a model - similar to a road map that guides us in driving through an unfamiliar city\"",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
@@ -41,7 +29,7 @@
     }
   },
   {
-    "chunk_id": "02db2385-e77a-47e3-8dd9-e4cd70119040",
+    "chunk_id": "e549d615-f310-5f25-9e1d-518cddc2e036",
     "text": "Informed machine learning tries to give some \"blueprint of reality\" by including prior knowledge into the machine learning pipeline as described in the taxonomy by von Rueden et al. [9]. While con- ducting the joint industrial-academic research project VEDLIoT! we observed that prior knowledge in the form of causal models can help in deciding which data is required for training and test- ing, and which runtime conditions need to be fulfilled. Previously, causal models at design time of a system were mostly use to define safety argumentation of a system, such as described in the work of Ibrahim et al. [2]. In this extended abstract we propose to use causal models for planning acquisition of training data and for ensuring the desired run-time behaviour of the AI system.",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
@@ -55,7 +43,7 @@
     }
   },
   {
-    "chunk_id": "80dcabaf-305a-48de-bbe2-cc01363cf107",
+    "chunk_id": "0f1bf2f4-4411-596a-9221-ac570542b7dc",
     "text": "artificial intelligence, causal reasoning, machine learning, require- ment engineering, safety",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
@@ -69,7 +57,7 @@
     }
   },
   {
-    "chunk_id": "845028ac-3ac9-4696-84e1-d3c78b5ef95a",
+    "chunk_id": "120cfb10-8257-546f-a846-83997fdb0e06",
     "text": "Hans-Martin Heyn and Eric Knauss. 2022. Structural Causal Models as Boundary Objects in AI System Development. In 1st Conference on AI Engi- neering - Software Engineering for AI (CAIN’22), May 16-24, 2022, Pittsburgh, PA, USA. ACM, New York, NY, USA, 3 pages. https://doi.org/10.1145/3522664. 3528615",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
@@ -83,7 +71,7 @@
     }
   },
   {
-    "chunk_id": "2f931ba1-7d6a-4113-91c3-e9c0363d36ce",
+    "chunk_id": "54da8379-3f02-5db7-9671-888fd831c6e5",
     "text": "Why Causal Models? Many causal relationships are learnt by hu- mans through experience or formalised through scientific methods. For a machine learning model, causal relations, and especially the direction of cause and effect are not directly learnable. Although research into causal learning is progressing (see all the work from Pearl et al., e.g., [4, 6] and Peters et al. [7]), inferring causal struc- ture from data is an \"ill-posed\" problem because \"even complete knowledge of the probabilistic model” usually does not determine the underlying causal model\" [7].\n\nModern machine learning, and especially deep learning, are opaque learning machines [5] because they rely on statistical learning to find \"dependence among random variables from observational data\" [7]. For successful training of machine learning models the provided data must be suitable to infer the underlying mathematical structure. Advances in connectivity and data storage lead to \"big data\" for providing huge amounts of data. However, there is no guarantee that the data provided for training are actually correctly",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
@@ -97,8 +85,8 @@
     }
   },
   {
-    "chunk_id": "60c71c25-1aab-4887-93ec-6bf2c7bf5a19",
-    "text": "Causal models in practise. Causal relations can be represented thr- ough directed acyclic graphs [6]. During the research project VEDL- IoT, we started to draw directed graphs to capture the desired causal behaviour of the AI system. For one of the industry use cases, which encompasses a machine learning based pedestrian detection [3], the starting point is depicted in Figure 1a. Given a target on the road, the pixel values of the camera image change, which should (through a trained deep neural network) lead to the event \"Detection of target\".\n\n“Both authors contributed equally to this research.\n\nThis Work is Licensed under a Creative Commons Attribution International 4.0 License. CAIN’22, May 16-24, 2022, Pittsburgh, PA, USA © 2022 Copyright held by the owner/author(s). ACM ISBN 978-1-4503-9275-4/22/05. https://doi.org/10.1145/3522664.3528615\n\nWe found causal models were helpful to plan the acquisition of training data and to find requirements for run-time monitoring.\n\nA causal model assists the planning of (training) datasets. If one in- cludes the environmental aspect of weather, our knowledge will\n\n‘http://www.vedliot.eu\n\n2which probably never exists in machine learning, because we train models with sampled, non-infinite datasets\n\nCAIN’22, May 16-24, 2022, Pittsburgh, PA, USA\n\n© —_-O—-@ Target on road Pixel values Detection of target (a) Basic functionality of the Pedestrian detection. / Weather =, Pixel values Target on road Detection of target\n\nTarget on road\n\nDetection of target",
+    "chunk_id": "1c64345d-2bea-5c9b-8df0-587c1541c44e",
+    "text": "Causal models in practise. Causal relations can be represented thr- ough directed acyclic graphs [6]. During the research project VEDL- IoT, we started to draw directed graphs to capture the desired causal behaviour of the AI system. For one of the industry use cases, which encompasses a machine learning based pedestrian detection [3], the starting point is depicted in Figure 1a. Given a target on the road, the pixel values of the camera image change, which should (through a trained deep neural network) lead to the event \"Detection of target\".\n\n“Both authors contributed equally to this research.\n\nThis Work is Licensed under a Creative Commons Attribution International 4.0 License. CAIN’22, May 16-24, 2022, Pittsburgh, PA, USA © 2022 Copyright held by the owner/author(s). ACM ISBN 978-1-4503-9275-4/22/05. https://doi.org/10.1145/3522664.3528615\n\nWe found causal models were helpful to plan the acquisition of training data and to find requirements for run-time monitoring.\n\nA causal model assists the planning of (training) datasets. If one in- cludes the environmental aspect of weather, our knowledge will\n\n‘http://www.vedliot.eu\n\nCAIN’22, May 16-24, 2022, Pittsburgh, PA, USA",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
       "page_number": 1,
@@ -107,31 +95,28 @@
       ],
       "element_types": [
         "NarrativeText",
-        "Text",
-        "Footer",
+        "Text"
+      ]
+    }
+  },
+  {
+    "chunk_id": "d1285049-9399-58a9-ba9a-95f446986617",
+    "text": "© —_-O—-@ Target on road Pixel values Detection of target (a) Basic functionality of the Pedestrian detection. / Weather =, Pixel values Target on road Detection of target\n\nTarget on road\n\nDetection of target\n\n(b) Considering the influence of weather. Green edges: Causal paths Red edges: Indirect, biasing paths.",
+    "metadata": {
+      "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
+      "page_number": 2,
+      "heading_path": [
+        "2 CAUSAL MODELS AS BOUNDARY OBJECTS"
+      ],
+      "element_types": [
         "Image",
         "FigureCaption"
       ]
     }
   },
   {
-    "chunk_id": "533c1421-0380-4d95-ab4c-97c2c57a1606",
-    "text": "(b) Considering the influence of weather. Green edges: Causal paths Red edges: Indirect, biasing paths.\n\nFigure 1: Directed acyclic graphs representing causal models\n\ntell us that weather changes the illumination of the camera images (sunny day vs. cloudy day). The illumination in turn effects the pixel values. But furthermore, weather also effects the probability of a target being on the road. It is more probable to encounter a pedestrian walking on the road on a nice sunny day compared to a cloudy, rainy day. Therefore, there is not only a causal relation between weather and pixel values (via illumination), but also be- tween weather and the probability that a target is encountered on the road. Weather is therefore a so called confounder, which can introduce a bias. In a directed graph this causal relation can easily be depicted, as shown in Figure 1b.\n\nThe training data set must account for the spurious association caused by the variable \"weather\" to avoid a bias in the inference results of the final AI model. In practise, the data collection needs to be planed such as to collect more data during bad weather than during sunny weather. This allows for the data to have an equal proportion of pedestrians visible in both bad and sunny weather.",
-    "metadata": {
-      "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
-      "page_number": 2,
-      "heading_path": [
-        "2 CAUSAL MODELS AS BOUNDARY OBJECTS"
-      ],
-      "element_types": [
-        "FigureCaption",
-        "NarrativeText"
-      ]
-    }
-  },
-  {
-    "chunk_id": "511cb2e3-d182-449c-a2f4-c1b93156a571",
-    "text": "A causal model provides rules for runtime monitoring. Monitoring the behaviour and performance of AI models at runtime can be important especially for safety critical applications. However, it is still challenging to derive the necessary requirements for such runtime monitors because test conditions are difficult to define [1] or the deployment environment is unknown at design time [8].\n\nBy using causal models, assumptions about the deployment en- vironment can be made explicit and test condition can be derived directly from the causal models. In the model depicted in Figure1b we assumed that weather influences the probability of encoun- tering pedestrians on the road and adjusted our training dataset accordingly. This causal assumptions provides us with a testable probability condition: Weather and the probability of encountering a pedestrian are statistically depended, and the dependence can be inferred at runtime, given access to weather data and detection rate of pedestrians. By providing a clear description of the assumed causal relations through a causal model at design time, validation and runtime testing criteria based on runtime data can be derived",
+    "chunk_id": "0e78cbac-df0f-51c7-8d08-fcf985b453e5",
+    "text": "Figure 1: Directed acyclic graphs representing causal models\n\ntell us that weather changes the illumination of the camera images (sunny day vs. cloudy day). The illumination in turn effects the pixel values. But furthermore, weather also effects the probability of a target being on the road. It is more probable to encounter a pedestrian walking on the road on a nice sunny day compared to a cloudy, rainy day. Therefore, there is not only a causal relation between weather and pixel values (via illumination), but also be- tween weather and the probability that a target is encountered on the road. Weather is therefore a so called confounder, which can introduce a bias. In a directed graph this causal relation can easily be depicted, as shown in Figure 1b.\n\nThe training data set must account for the spurious association caused by the variable \"weather\" to avoid a bias in the inference results of the final AI model. In practise, the data collection needs to be planed such as to collect more data during bad weather than during sunny weather. This allows for the data to have an equal proportion of pedestrians visible in both bad and sunny weather.",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
       "page_number": 2,
@@ -144,8 +129,8 @@
     }
   },
   {
-    "chunk_id": "f0c3db6d-059d-44f8-83eb-8d2ab8aca445",
-    "text": "31f we were to ignore the spurious association caused by weather, and collect 50% of the data during bad weather and the remaining 50% of the data during sunny weather, the data set would be biased in the sense that more pedestrians are present during sunny weather. This in turn would cause the model to perform better in detecting pedestrians on the road during sunny conditions.\n\n44\n\nHeyn and Knauss\n\nKo kK oho A Function Testing Domain Developers Engineers Experts Data Scientists / Product Owner / Hardware Safety Data Analysts Requirement Engineers Engineers Engineers SS -e.. Other / Weather Mluminiation \\ y y Artefacts, © -@—-@ such as Target on road Pixel values Detection of target hardware Structural causal model architecture, Data Training data F Al model, collection lection Testing context campaign se ae Safety Runtime K description, [Argumentation wun safety case, eeds Al System development\n\nFigure 2: Structural causal models as boundary object in an AI system development environment.\n\nto check the validity of the made causal assumptions (e.g., about the environment):\n\n\"[...] a researcher who has scientific knowledge in the form of a structural equation model is able to predict patterns of in dependencies in the data, based solely on the structure of the model’s graph. [...] Conversely, it means that observing patterns of in dependencies in the data enables us to say something about whether a hypothesised model is correct\" [6, Chapter 2.1].",
+    "chunk_id": "a00087e1-dc97-53bf-90fe-c4c42d168dec",
+    "text": "A causal model provides rules for runtime monitoring. Monitoring the behaviour and performance of AI models at runtime can be important especially for safety critical applications. However, it is still challenging to derive the necessary requirements for such runtime monitors because test conditions are difficult to define [1] or the deployment environment is unknown at design time [8].\n\nBy using causal models, assumptions about the deployment en- vironment can be made explicit and test condition can be derived directly from the causal models. In the model depicted in Figure1b we assumed that weather influences the probability of encoun- tering pedestrians on the road and adjusted our training dataset accordingly. This causal assumptions provides us with a testable probability condition: Weather and the probability of encountering a pedestrian are statistically depended, and the dependence can be inferred at runtime, given access to weather data and detection rate of pedestrians. By providing a clear description of the assumed causal relations through a causal model at design time, validation and runtime testing criteria based on runtime data can be derived\n\nHeyn and Knauss",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
       "page_number": 2,
@@ -153,15 +138,41 @@
         "2 CAUSAL MODELS AS BOUNDARY OBJECTS"
       ],
       "element_types": [
-        "Footer",
-        "NarrativeText",
+        "NarrativeText"
+      ]
+    }
+  },
+  {
+    "chunk_id": "661b815e-5c51-57eb-ab9e-59f65c722865",
+    "text": "Ko kK oho A Function Testing Domain Developers Engineers Experts Data Scientists / Product Owner / Hardware Safety Data Analysts Requirement Engineers Engineers Engineers SS -e.. Other / Weather Mluminiation \\ y y Artefacts, © -@—-@ such as Target on road Pixel values Detection of target hardware Structural causal model architecture, Data Training data F Al model, collection lection Testing context campaign se ae Safety Runtime K description, [Argumentation wun safety case, eeds Al System development\n\nFigure 2: Structural causal models as boundary object in an AI system development environment.",
+    "metadata": {
+      "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
+      "page_number": 2,
+      "heading_path": [
+        "2 CAUSAL MODELS AS BOUNDARY OBJECTS"
+      ],
+      "element_types": [
         "Image",
         "FigureCaption"
       ]
     }
   },
   {
-    "chunk_id": "b9a53cb6-2253-42e0-96da-ddf225437ff5",
+    "chunk_id": "6b6cc3a3-c96e-5159-87cd-cd54624686ca",
+    "text": "to check the validity of the made causal assumptions (e.g., about the environment):\n\n\"[...] a researcher who has scientific knowledge in the form of a structural equation model is able to predict patterns of in dependencies in the data, based solely on the structure of the model’s graph. [...] Conversely, it means that observing patterns of in dependencies in the data enables us to say something about whether a hypothesised model is correct\" [6, Chapter 2.1].",
+    "metadata": {
+      "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
+      "page_number": 2,
+      "heading_path": [
+        "2 CAUSAL MODELS AS BOUNDARY OBJECTS"
+      ],
+      "element_types": [
+        "NarrativeText"
+      ]
+    }
+  },
+  {
+    "chunk_id": "2e9b4e39-ff3c-5cca-a638-bd79c067bc92",
     "text": "\"Boundary objects are objects which are both plastic enough to adapt to local needs and the constraints of the several parties em- ploying them, yet robust enough to maintain a common identity across sites\" [10]. Based on our experience in VEDLIoT, causal mod- els can serve as boundary objects to capture and communicate assumptions about the deployment environment of AI systems between different stakeholders and development artefacts, as illus- trated in Figure 2.",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
@@ -175,7 +186,7 @@
     }
   },
   {
-    "chunk_id": "990c0135-67d4-4422-9985-3799764a3dc5",
+    "chunk_id": "61bbd2b9-b479-5655-9fe3-81333f081c64",
     "text": "This project has received funding from the EU Horizon 2020 re- search and innovation program under grant agreement No 957197.",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
@@ -189,8 +200,8 @@
     }
   },
   {
-    "chunk_id": "dedaeb63-8370-40ee-90ad-72c5c2d64399",
-    "text": "Markus Borg, Cristofer Englund, et al. 2018. Safely entering the deep: A review of verification and validation for machine learning and a challenge elicitation in the automotive industry. arXiv preprint arXiv:1812.05389 (2018).\n\n2] Amjad Ibrahim, Severin Kacianka, et al. 2019. Practical causal models for cyber- physical systems. In NASA Formal Methods Symposium. Springer, 211-227.\n\n3] Franz Meierhéfer, Roland Weiss, et al. 2021. Specification for selected pilots / use cases. Technical Report 957197. Horizon 2020 Research Framework. https: //vedliot.eu/deliverable/deliverable-d23/\n\n4] Judea Pearl. 2009. Causal inference in statistics: An overview. Statistics surveys 3 (2009), 96-146.\n\n5] Judea Pearl. 2019. The Limitations of Opaque Learning Machines. In Possible Minds: 25 Ways of Looking at AI, Johnm Brockman (Ed.). Penguin Press, London, Chapter 2.\n\n6] Judea Pearl, Madelyn Glymour, and Nicholas P Jewell. 2016. Causal inference in statistics: A primer. John Wiley & Sons.\n\nStructural Causal Models as Boundary Objects in Al System Development\n\n[7] Jonas Peters, Dominik Janzing, and Bernhard Schélkopf. 2017. Elements of causal inference: foundations and learning algorithms. The MIT Press.\n\n[8] Quazi Marufur Rahman, Peter Corke, and Feras Dayoub. 2021. Run-time moni- toring of machine learning for robotic perception: A survey of emerging trends. IEEE Access 9 (2021), 20067-20075.\n\n45\n\nCAIN’22, May 16-24, 2022, Pittsburgh, PA, USA",
+    "chunk_id": "b4ca2561-a33f-5ed7-99cf-871672f512ac",
+    "text": "Markus Borg, Cristofer Englund, et al. 2018. Safely entering the deep: A review of verification and validation for machine learning and a challenge elicitation in the automotive industry. arXiv preprint arXiv:1812.05389 (2018).\n\n2] Amjad Ibrahim, Severin Kacianka, et al. 2019. Practical causal models for cyber- physical systems. In NASA Formal Methods Symposium. Springer, 211-227.\n\n3] Franz Meierhéfer, Roland Weiss, et al. 2021. Specification for selected pilots / use cases. Technical Report 957197. Horizon 2020 Research Framework. https: //vedliot.eu/deliverable/deliverable-d23/\n\n4] Judea Pearl. 2009. Causal inference in statistics: An overview. Statistics surveys 3 (2009), 96-146.\n\n5] Judea Pearl. 2019. The Limitations of Opaque Learning Machines. In Possible Minds: 25 Ways of Looking at AI, Johnm Brockman (Ed.). Penguin Press, London, Chapter 2.\n\n6] Judea Pearl, Madelyn Glymour, and Nicholas P Jewell. 2016. Causal inference in statistics: A primer. John Wiley & Sons.\n\nStructural Causal Models as Boundary Objects in Al System Development\n\n[7] Jonas Peters, Dominik Janzing, and Bernhard Schélkopf. 2017. Elements of causal inference: foundations and learning algorithms. The MIT Press.\n\n[8] Quazi Marufur Rahman, Peter Corke, and Feras Dayoub. 2021. Run-time moni- toring of machine learning for robotic perception: A survey of emerging trends. IEEE Access 9 (2021), 20067-20075.",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",
       "page_number": 2,
@@ -199,13 +210,12 @@
       ],
       "element_types": [
         "ListItem",
-        "NarrativeText",
-        "Header"
+        "NarrativeText"
       ]
     }
   },
   {
-    "chunk_id": "03045eab-220f-4d63-97cf-d132e2a54294",
+    "chunk_id": "2a8e7820-52dd-5815-af4c-21eaf719a2e6",
     "text": "[9] Laura von Rueden, Sebastian Mayer, et al. 2021. Informed Machine Learning-A Taxonomy and Survey of Integrating Prior Knowledge into Learning Systems. IEEE Transactions on Knowledge and Data Engineering (2021).\n\n[10] Rebekka Wohlrab, Patrizio Pelliccione, et al. 2019. Boundary objects and their use in agile systems engineering. Journal of Software: Evolution and Process 31, 5 (2019), 2166.",
     "metadata": {
       "source_file": "Structural_Causal_Models_as_Boundary_Objects_in_AI_System_Development.pdf",

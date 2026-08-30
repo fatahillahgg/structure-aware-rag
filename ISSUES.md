@@ -1,5 +1,7 @@
 # Ingestion Pipeline Issues
 
+> **Update 2026-08-31:** Issues #2 and #4 fixed, #1 partially mitigated, #5 fixed. See "Resolved" section below.
+
 ## Completed: Initial Setup
 - ✅ PDF parsing with `unstructured[pdf]` + hi_res strategy
 - ✅ Structure-aware chunking with heading hierarchy tracking
@@ -13,35 +15,27 @@
 
 ## Known Issues
 
-### 1. OCR Artifacts (Low Priority)
+### 1. OCR Artifacts (Low Priority) — Partially Mitigated
 **Problem:** Minor OCR errors in extracted text.
 
 **Examples:**
-- "1st" → "Ist" (chunk 0, header)
-- "Illumination" → "Mluminiation" (chunk 6, text body)
+- "1st" → "Ist" (chunk 0, header) — this was in a `Header` element, now dropped entirely (see #2 fix)
+- "Illumination" → "Mluminiation" (chunk 6, text body) — still present, this is a genuine OCR misrecognition, not a ligature/whitespace issue
 
-**Impact:** Low — doesn't break structure, just noise in text field.
+**Fix applied:** `chunk.py:_clean()` now runs `clean_ligatures` + `clean_extra_whitespace` (from `unstructured.cleaners.core`) on every element's text and on heading titles before they're stored.
 
-**Fix:**
-- Post-process with regex to fix common OCR patterns (e.g., `Mluminiation` → `Illumination`)
-- Or: switch to larger OCR confidence threshold if unstructured library supports it
+**Remaining gap:** True OCR misreads (wrong characters, not ligatures) aren't fixable by cleanup regexes — would need a spellcheck/LLM correction pass, or a higher-DPI re-render before OCR. Left as-is; low priority since it doesn't break structure.
 
 ---
 
-### 2. Mixed Element Types in Single Chunk (Medium Priority)
-**Problem:** Chunks contain heterogeneous element types bundled together.
+### 2. Mixed Element Types in Single Chunk (Medium Priority) — Fixed
+**Problem:** Chunks contained heterogeneous element types bundled together (e.g. `NarrativeText + Footer + Image + FigureCaption` in one chunk).
 
-**Example:** Chunk 7 (Figure 1 context):
-```json
-"element_types": ["NarrativeText", "Text", "Footer", "Image", "FigureCaption"]
-```
+**Fix applied:**
+- `Header`/`Footer` elements are now dropped entirely — they're running page boilerplate, not content, and their inclusion is what caused most of the type-mixing.
+- `Image`/`FigureCaption` elements are now grouped into their own "figure" chunks, separate from surrounding `NarrativeText`/`Text`/`ListItem` ("narrative" group). The buffer flushes whenever the group changes.
 
-**Impact:** Medium — makes it harder for downstream systems to filter by type (e.g., "give me only text chunks, exclude images"). Single-type chunks are cleaner for RAG.
-
-**Fix:**
-- Modify `chunk.py:chunk_elements()` to split chunks when element type changes
-- Option A: One chunk per element type (more fragmented but clean)
-- Option B: Keep mixed types but separate them into sub-lists in metadata (preserve context while allowing filtering)
+**Verified:** re-ran ingestion — figure chunks are now isolated (e.g. `element_types: ["Image", "FigureCaption"]`), narrative chunks contain only narrative types, and the standalone header-only chunk is gone.
 
 ---
 
@@ -56,27 +50,21 @@
 
 ---
 
-### 4. System Dependency Management (Infrastructure)
+### 4. System Dependency Management (Infrastructure) — Fixed
 **Problem:** Tesseract OCR + Poppler must be on system PATH; no automatic install.
 
-**Current workaround:**
-```bash
-export PATH="/c/Program Files/Tesseract-OCR:..." && uv run ...
-```
+**Fix applied:** `src/structure_aware_rag/env_setup.py:ensure_ocr_tools_on_path()` checks `shutil.which("tesseract")`/`shutil.which("pdftoppm")` and, if missing, injects the known winget install directories into `os.environ["PATH"]` before `unstructured` is imported. Called at the top of `parse.py`.
 
-**Fix:**
-- Add PATH setup to `.env` or shell initialization
-- Or: use `os.environ["PATH"]` in Python code to inject paths at runtime
-- Or: document in README that `tesseract` and `poppler` must be installed via `winget`
+**Verified:** ran `uv run python -m structure_aware_rag.ingest` in a fresh shell with no manual PATH export — worked.
+
+**Remaining gap:** the candidate install paths in `env_setup.py` are hardcoded to this machine's winget package layout (Tesseract in `Program Files`, Poppler under the winget packages cache with its specific hash-suffixed dir name). Portable across other machines only if they used the same winget install method. Still requires Tesseract/Poppler to be installed via winget (or manually to those exact paths) — doesn't auto-install them.
 
 ---
 
-### 5. No Validation of Chunk Quality
+### 5. No Validation of Chunk Quality — Fixed
 **Problem:** No checks for empty/whitespace-only chunks, duplicate headings, or malformed metadata.
 
-**Fix:**
-- Add `chunk_elements()` post-processing to validate and filter bad chunks
-- e.g., reject chunks where `text.strip() == ""` or `len(text) < 10`
+**Fix applied:** `chunk_elements()` now drops any chunk whose cleaned text is shorter than `MIN_CHARS` (10 chars) before appending it — applies to both narrative/figure chunks and table chunks (empty `text_as_html` is also skipped).
 
 ---
 
